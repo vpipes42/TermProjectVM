@@ -1,0 +1,53 @@
+class Task:
+    def __init__(self, task_name, deadline, assigned_to=None):
+        self.task_name = task_name
+        self.deadline = deadline
+        self.assigned_to = assigned_to
+        self.completed = False
+
+    def mark_as_completed(self):
+        self.completed = True
+
+class TaskManager:
+    def __init__(self):
+        self.tasks = []
+
+    def add_task(self, task):
+        self.tasks.append(task)
+
+    def remove_task(self, task_name):
+        for task in self.tasks:
+            if task.task_name == task_name:
+                self.tasks.remove(task)
+                break
+
+    def prioritize_tasks(self):
+        # Logic to prioritize tasks based on deadlines or other criteria
+
+    def show_all_tasks(self):
+        for task in self.tasks:
+            print(f"Task: {task.task_name}, Deadline: {task.deadline}, Assigned to: {task.assigned_to}, Completed: {task.completed}")
+
+    def find_task_by_name(self, task_name):
+        for task in self.tasks:
+            if task.task_name == task_name:
+                return task
+        return None
+
+# Sample usage:
+task_manager = TaskManager()
+
+task1 = Task("Finish Report", "2023-12-15", "Alice")
+task2 = Task("Prepare Presentation", "2023-12-20", "Bob")
+
+task_manager.add_task(task1)
+task_manager.add_task(task2)
+
+task_manager.show_all_tasks()
+
+# Marking a task as completed
+task_to_complete = task_manager.find_task_by_name("Finish Report")
+if task_to_complete:
+    task_to_complete.mark_as_completed()
+
+task_manager.show_all_tasks()
