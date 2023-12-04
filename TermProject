@@ -1,12 +1,25 @@
 class Task:
-    def __init__(self, task_name, deadline, assigned_to=None):
+    def __init__(self, task_name, deadline, assigned_to=None, description=None):
         self.task_name = task_name
         self.deadline = deadline
         self.assigned_to = assigned_to
         self.completed = False
+        self.description = description
 
     def mark_as_completed(self):
         self.completed = True
+
+    def update_deadline(self, new_deadline):
+        self.deadline = new_deadline
+
+    def update_assignment(self, new_assigned_to):
+        self.assigned_to = new_assigned_to
+
+    def update_description(self, new_description):
+        self.description = new_description
+
+    def __str__(self):
+        return f"Task: {self.task_name}, Deadline: {self.deadline}, Assigned to: {self.assigned_to}, Completed: {self.completed}, Description: {self.description}"
 
 class TaskManager:
     def __init__(self):
@@ -22,11 +35,11 @@ class TaskManager:
                 break
 
     def prioritize_tasks(self):
-        # Logic to prioritize tasks based on deadlines or other criteria
+        self.tasks.sort(key=lambda x: x.deadline)
 
     def show_all_tasks(self):
         for task in self.tasks:
-            print(f"Task: {task.task_name}, Deadline: {task.deadline}, Assigned to: {task.assigned_to}, Completed: {task.completed}")
+            print(task)
 
     def find_task_by_name(self, task_name):
         for task in self.tasks:
@@ -34,20 +47,45 @@ class TaskManager:
                 return task
         return None
 
-# Sample usage:
+    def update_task_assignment(self, task_name, new_assigned_to):
+        task = self.find_task_by_name(task_name)
+        if task:
+            task.update_assignment(new_assigned_to)
+            print(f"Assignment updated for task: {task_name}")
+
+    def update_task_description(self, task_name, new_description):
+        task = self.find_task_by_name(task_name)
+        if task:
+            task.update_description(new_description)
+            print(f"Description updated for task: {task_name}")
+
+    def mark_task_as_completed(self, task_name):
+        task = self.find_task_by_name(task_name)
+        if task:
+            task.mark_as_completed()
+            print(f"Marked task '{task_name}' as completed.")
+    
 task_manager = TaskManager()
 
-task1 = Task("Finish Report", "2023-12-15", "Alice")
-task2 = Task("Prepare Presentation", "2023-12-20", "Bob")
+task1 = Task("Finish Report", "2023-12-15", "Alice", "Complete the final report for the project")
+task2 = Task("Prepare Presentation", "2023-12-20", "Bob", "Create slides for the upcoming meeting")
+task3 = Task("Project Proposal", "2023-12-10", "Charlie", "Draft a proposal for the new project")
 
 task_manager.add_task(task1)
 task_manager.add_task(task2)
+task_manager.add_task(task3)
 
 task_manager.show_all_tasks()
 
-# Marking a task as completed
-task_to_complete = task_manager.find_task_by_name("Finish Report")
-if task_to_complete:
-    task_to_complete.mark_as_completed()
-
+# Updating assignment
+task_manager.update_task_assignment("Finish Report", "John")
 task_manager.show_all_tasks()
+
+# Update description
+task_manager.update_task_description("Prepare Presentation", "Prepare an engaging presentation with visuals")
+task_manager.show_all_tasks()
+
+# task completed
+task_manager.mark_task_as_completed("Project Proposal")
+task_manager.show_all_tasks()
+
