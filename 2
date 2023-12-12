@@ -1,0 +1,100 @@
+class Task:
+    def __init__(self, task_name, deadline, description=None, priority='low', dependencies=None):
+        self.task_name = task_name
+        self.deadline = deadline
+        self.assigned_to = None
+        self.completed = False
+        self.description = description
+        self.priority = priority
+        self.dependencies = dependencies if dependencies else []
+        self.grade = None
+
+    def mark_as_completed(self):
+        self.completed = True
+
+    def assign_to_student(self, student_name):
+        self.assigned_to = student_name
+
+    def set_grade(self, grade):
+        self.grade = grade
+
+    def __str__(self):
+        return f"Task: {self.task_name}, Deadline: {self.deadline}, Assigned to: {self.assigned_to}, Completed: {self.completed}, Description: {self.description}, Priority: {self.priority}, Grade: {self.grade if self.grade else 'Not graded'}"
+
+class TaskManager:
+    def __init__(self):
+        self.tasks = []
+
+    def add_task(self, task):
+        self.tasks.append(task)
+
+def get_task_details():
+    task_name = input("Enter task name (or 'exit' to finish): ")
+    if task_name.lower() == 'exit':
+        return None
+        
+    deadline = input("Enter deadline (MM-DD-YYYY): ")
+    description = input("Enter task description: ")
+
+    return Task(task_name, deadline, description)
+
+def professor_input_completion_and_grades(task_manager, students):
+    for student in students:
+        for task in task_manager.tasks:
+            print(f"\nFor {student}'s assignment '{task.task_name}':")
+            completion_status = input(f"Did {student} complete this assignment? (yes/no): ")
+            if completion_status.lower() == 'yes':
+                task.assign_to_student(student)
+                task.mark_as_completed()
+                grade = input(f"Enter the grade for {student} on this assignment: ")
+                task.set_grade(float(grade) if grade else None)
+
+def calculate_student_averages(task_manager, students):
+    student_grades = {student: [] for student in students}
+    for task in task_manager.tasks:
+        if task.completed and task.grade:
+            student_grades[task.assigned_to].append(task.grade)
+
+    student_averages = {}
+    for student, grades in student_grades.items():
+        if grades:
+            average_grade = sum(grades) / len(grades)
+            student_averages[student] = average_grade
+
+    return student_averages
+
+def main():
+    task_manager = TaskManager()
+
+    while True:
+        task = get_task_details()
+        if not task:
+            break
+        
+        task_manager.add_task(task)
+
+    students = ['Alice', 'Bob', 'Charlie', 'David', 'Emma']
+    professor_input_completion_and_grades(task_manager, students)
+
+    student_averages = calculate_student_averages(task_manager, students)
+    print("\nStudent Averages:")
+    for student, average in student_averages.items():
+        print(f"{student}: {average:.2f}")
+
+    print("\nClass Report:")
+    for student in students:
+        total_grade = 0
+        completed_tasks = 0
+        print(f"\n{student}'s Assignments and Grades:")
+        for task in task_manager.tasks:
+            if task.assigned_to == student:
+                print(f"Assignment: {task.task_name}, Grade: {task.grade if task.grade else 'Not graded'}")
+                if task.grade:
+                    total_grade += task.grade
+                    completed_tasks += 1
+        if completed_tasks > 0:
+            student_average = total_grade / completed_tasks
+            print(f"{student}'s Average Grade: {student_average:.2f}")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,49 @@
+import random
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
+
+# Download NLTK data if not already downloaded
+nltk.download('vader_lexicon')
+
+# Define prompts and responses
+prompts = [
+    "Tell me about your day.",
+    "What's been on your mind lately?",
+    "How are you feeling right now?",
+    "Is there anything specific bothering you?"
+]
+
+responses = [
+    "I see.",
+    "Tell me more.",
+    "That sounds tough.",
+    "How do you feel about that?"
+]
+
+# Initialize SentimentIntensityAnalyzer for sentiment analysis
+sia = SentimentIntensityAnalyzer()
+
+# Therapist function
+def therapist():
+    print("Therapist: Hi there! I'm here to listen. What's on your mind today?")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() == "exit":
+            print("Therapist: Thanks for sharing. Goodbye!")
+            break
+        
+        # Perform basic sentiment analysis on user input
+        sentiment_score = sia.polarity_scores(user_input)['compound']
+        if sentiment_score > 0.5:
+            print("Therapist: That sounds positive.")
+        elif sentiment_score < -0.5:
+            print("Therapist: That sounds challenging.")
+        else:
+            print("Therapist: I understand.")
+
+        # Choose a random response from the list of responses
+        therapist_response = random.choice(responses)
+        print(f"Therapist: {therapist_response}")
+
+# Start the conversation
+therapist()

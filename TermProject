@@ -1,10 +1,14 @@
+from datetime import datetime
+
 class Task:
-    def __init__(self, task_name, deadline, assigned_to=None, description=None):
+    def __init__(self, task_name, deadline, description=None, priority='low', dependencies=None):
         self.task_name = task_name
         self.deadline = deadline
-        self.assigned_to = assigned_to
+        self.assigned_to = None
         self.completed = False
         self.description = description
+        self.priority = priority
+        self.dependencies = dependencies if dependencies else []
 
     def mark_as_completed(self):
         self.completed = True
@@ -12,14 +16,34 @@ class Task:
     def update_deadline(self, new_deadline):
         self.deadline = new_deadline
 
-    def update_assignment(self, new_assigned_to):
-        self.assigned_to = new_assigned_to
+    def assign_to_student(self, student_name):
+        self.assigned_to = student_name
 
     def update_description(self, new_description):
         self.description = new_description
 
+    def add_dependency(self, dependency):
+        self.dependencies.append(dependency)
+
     def __str__(self):
-        return f"Task: {self.task_name}, Deadline: {self.deadline}, Assigned to: {self.assigned_to}, Completed: {self.completed}, Description: {self.description}"
+        return f"Task: {self.task_name}, Deadline: {self.deadline}, Assigned to: {self.assigned_to}, Completed: {self.completed}, Description: {self.description}, Priority: {self.priority}, Dependencies: {self.dependencies}"
+
+    def get_completion_status(self):
+        return f"Task: {self.task_name}, Completed: {self.completed}, Deadline: {self.deadline}"
+
+students = ['Alice', 'Bob', 'Charlie', 'David', 'Emma', 'Frank', 'Grace', 'Hannah', 'Isaac', 'Julia', 'Kevin', 'Lily', 'Michael', 'Nora', 'Oliver']
+
+tasks_list = [
+    Task("Lab 1", "2023-12-07", description="Lab 1 assignment"),
+    Task("Lab 2", "2023-12-14", description="Lab 2 assignment"),
+    Task("Lab 3", "2023-12-21", description="Lab 3 assignment"),
+    Task("Lab 4", "2023-12-28", description="Lab 4 assignment"),
+    Task("Lab 5", "2024-01-04", description="Lab 5 assignment"),
+    Task("Midterm Exam", "2024-01-10", description="Midterm exam for the class"),
+    Task("Final Exam", "2024-01-24", description="Final exam for the class"),
+    Task("Term Project", "2024-02-10", description="Final term project")
+]
+
 
 class TaskManager:
     def __init__(self):
@@ -47,45 +71,132 @@ class TaskManager:
                 return task
         return None
 
-    def update_task_assignment(self, task_name, new_assigned_to):
+    def assign_task_to_student(self, task_name, student_name):
         task = self.find_task_by_name(task_name)
         if task:
-            task.update_assignment(new_assigned_to)
-            print(f"Assignment updated for task: {task_name}")
-
-    def update_task_description(self, task_name, new_description):
-        task = self.find_task_by_name(task_name)
-        if task:
-            task.update_description(new_description)
-            print(f"Description updated for task: {task_name}")
+            task.assign_to_student(student_name)
+            print(f"Task '{task_name}' assigned to {student_name}")
 
     def mark_task_as_completed(self, task_name):
         task = self.find_task_by_name(task_name)
         if task:
             task.mark_as_completed()
-            print(f"Marked task '{task_name}' as completed.")
+            print(f"Marked task '{task_name}' as completed on {datetime.now()}")
+
+    def add_dependency_to_task(self, task_name, dependency_name):
+        task = self.find_task_by_name(task_name)
+        dependency_task = self.find_task_by_name(dependency_name)
+        if task and dependency_task:
+            task.add_dependency(dependency_task)
+            print(f"Added '{dependency_name}' as a dependency to '{task_name}'")
+
+    def show_student_progress(self, student_name):
+        print(f"\nTasks Completed by {student_name}:\n")
+        completed_tasks = [task.get_completion_status() for task in self.tasks if task.assigned_to == student_name and task.completed]
+        if completed_tasks:
+            for task in completed_tasks:
+                print(task)
+        else:
+            print("No tasks completed.")
+
+        print(f"\nTasks Still to be Completed by {student_name}:\n")
+        remaining_tasks = [task.get_completion_status() for task in self.tasks if task.assigned_to == student_name and not task.completed]
+        if remaining_tasks:
+            for task in remaining_tasks:
+                print(task)
+        else:
+            print("All tasks completed.")
     
+    def check_completion_with_professor(self, task_name, student_name):
+        task = self.find_task_by_name(task_name)
+        if task and task.assigned_to == student_name:
+            completion_status = "completed" if task.completed else "not completed"
+            confirmation = input(f"Professor Keeley, has {student_name} completed '{task_name}'? (yes/no): ")
+            
+            if confirmation.lower() == 'yes':
+                print(f"{student_name} has marked '{task_name}' as completed.")
+                task.mark_as_completed()
+            else:
+                print(f"{student_name} has not completed '{task_name}'.")
+        else:
+            print(f"No task named '{task_name}' assigned to {student_name}.")
+
+    def input_grades(self):
+        students = ['Alice', 'Bob', 'Charlie', 'David', 'Emma', 'Frank', 'Grace', 'Hannah', 'Isaac', 'Julia', 'Kevin', 'Lily', 'Michael', 'Nora', 'Oliver']
+        for student in students:
+            completed_tasks = [task for task in self.tasks if task.assigned_to == student and task.completed]
+            grades = []
+            for task in completed_tasks:
+                grade = float(input(f"Enter grade for '{task.task_name}' of {student}: "))
+                grades.append(grade)
+            
+            # Calculate final grade for the student based on completed tasks' grades
+            if grades:
+                final_grade = sum(grades) / len(grades)
+                print(f"Final grade for {student}: {final_grade:.2f}")
+            else:
+                print(f"No completed tasks for {student}.")
+            
+            # Calculate final grade for the student based on completed tasks' grades
+            if grades:
+                final_grade = sum(grades) / len(grades)
+                print(f"Final grade for {student}: {final_grade:.2f}")
+            else:
+                print(f"No completed tasks for {student}.")
+
+# Create instances of tasks and add them to the TaskManager for a 15-student class
 task_manager = TaskManager()
 
-task1 = Task("Finish Report", "2023-12-15", "Alice", "Complete the final report for the project")
-task2 = Task("Prepare Presentation", "2023-12-20", "Bob", "Create slides for the upcoming meeting")
-task3 = Task("Project Proposal", "2023-12-10", "Charlie", "Draft a proposal for the new project")
+# (Task creation, task assignment, dependency assignment, marking tasks as completed code remains the same)
 
-task_manager.add_task(task1)
-task_manager.add_task(task2)
-task_manager.add_task(task3)
+# Check completion and input grades
+for student in students:   
+    for task in tasks_list:
+        task_manager.check_completion_with_professor(task.task_name, student)
+    task_manager.input_grades()
 
-task_manager.show_all_tasks()
+# Create instances of tasks and add them to the TaskManager for a 15-student class
+task_manager = TaskManager()
 
-# Updating assignment
-task_manager.update_task_assignment("Finish Report", "John")
-task_manager.show_all_tasks()
+tasks_list = [
+    Task("Lab 1", "2023-12-07", description="Lab 1 assignment"),
+    Task("Lab 2", "2023-12-14", description="Lab 2 assignment"),
+    Task("Lab 3", "2023-12-21", description="Lab 3 assignment"),
+    Task("Lab 4", "2023-12-28", description="Lab 4 assignment"),
+    Task("Lab 5", "2024-01-04", description="Lab 5 assignment"),
+    Task("Midterm Exam", "2024-01-10", description="Midterm exam for the class"),
+    Task("Final Exam", "2024-01-24", description="Final exam for the class"),
+    Task("Term Project", "2024-02-10", description="Final term project")
+]
 
-# Update description
-task_manager.update_task_description("Prepare Presentation", "Prepare an engaging presentation with visuals")
-task_manager.show_all_tasks()
+for task in tasks_list:
+    task_manager.add_task(task)
 
-# task completed
-task_manager.mark_task_as_completed("Project Proposal")
-task_manager.show_all_tasks()
+students = ['Alice', 'Bob', 'Charlie', 'David', 'Emma', 'Frank', 'Grace', 'Hannah', 'Isaac', 'Julia', 'Kevin', 'Lily', 'Michael', 'Nora', 'Oliver']
+for student in students:
+    task_manager.add_task(Task(f"{student}'s Assignment", "2023-12-10", description=f"Assignment for {student}"))
+
+# Adding dependencies for each student's assignment
+for student in students:
+    for lab in ["Lab 1", "Lab 2", "Lab 3", "Lab 4", "Lab 5"]:
+        task_manager.add_dependency_to_task(f"{student}'s Assignment", lab)
+
+# Assigning dependencies for exams and term project
+for student in students:
+    task_manager.add_dependency_to_task(f"{student}'s Assignment", "Midterm Exam")
+    task_manager.add_dependency_to_task(f"{student}'s Assignment", "Final Exam")
+    task_manager.add_dependency_to_task(f"{student}'s Assignment", "Term Project")
+task_manager.add_dependency_to_task("Midterm Exam", "Final Exam")
+task_manager.add_dependency_to_task("Final Exam", "Term Project")
+
+# Assigning tasks to students
+for index, student in enumerate(students):
+    task_manager.assign_task_to_student(f"{student}'s Assignment", student)
+
+# Mark the midterm as completed
+task_manager.mark_task_as_completed("Midterm Exam")
+
+# Display student progress
+for student in students:
+    task_manager.show_student_progress(student)
 
