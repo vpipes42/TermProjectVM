@@ -58,9 +58,6 @@ class TaskManager:
                 self.tasks.remove(task)
                 break
 
-    def prioritize_tasks(self):
-        self.tasks.sort(key=lambda x: x.deadline)
-
     def show_all_tasks(self):
         for task in self.tasks:
             print(task)
